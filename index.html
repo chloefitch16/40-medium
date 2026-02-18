@@ -1,0 +1,1342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>40 Medium Challenge</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+  :root {
+    --bg: #0f0f13;
+    --surface: #1a1a24;
+    --surface2: #22222f;
+    --border: #2a2a3a;
+    --text: #e8e8f0;
+    --text-dim: #8888a0;
+    --accent: #7c5cfc;
+    --accent-glow: rgba(124,92,252,0.3);
+    --green: #34d399;
+    --green-glow: rgba(52,211,153,0.3);
+    --amber: #fbbf24;
+    --amber-glow: rgba(251,191,36,0.3);
+    --rose: #fb7185;
+    --rose-glow: rgba(251,113,133,0.3);
+    --blue: #60a5fa;
+    --pink: #f472b6;
+    --cyan: #22d3ee;
+    --orange: #fb923c;
+    --lime: #a3e635;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── Background decoration ── */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: radial-gradient(ellipse at 30% 20%, rgba(124,92,252,0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 80%, rgba(52,211,153,0.06) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .app { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 20px; }
+
+  /* ── Header ── */
+  .header {
+    text-align: center;
+    padding: 40px 20px 30px;
+  }
+  .header h1 {
+    font-size: 2.8rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent), var(--pink), var(--cyan));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -1px;
+  }
+  .header .subtitle {
+    color: var(--text-dim);
+    font-size: 1rem;
+    margin-top: 6px;
+    font-weight: 400;
+  }
+  .header .day-counter {
+    display: inline-block;
+    margin-top: 16px;
+    padding: 8px 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--accent);
+  }
+  .header .day-counter span { color: var(--text-dim); font-weight: 400; }
+
+  /* ── Navigation ── */
+  .nav {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 10px 0 30px;
+  }
+  .nav-btn {
+    padding: 10px 22px;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-dim);
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .nav-btn:hover { border-color: var(--accent); color: var(--text); }
+  .nav-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+    box-shadow: 0 0 20px var(--accent-glow);
+  }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 28px;
+    margin-bottom: 20px;
+    transition: border-color 0.2s;
+  }
+  .card:hover { border-color: rgba(124,92,252,0.3); }
+  .card-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .card-title .icon { font-size: 1.3rem; }
+
+  /* ── Dashboard Grid ── */
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .member-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 24px;
+    cursor: pointer;
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+  .member-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--member-color), transparent);
+  }
+  .member-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--member-color);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+  }
+  .member-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+  .avatar {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  .member-name { font-weight: 700; font-size: 1.15rem; }
+  .member-streak { color: var(--text-dim); font-size: 0.85rem; margin-top: 2px; }
+
+  .progress-ring-container {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 14px;
+  }
+  .progress-ring { position: relative; width: 70px; height: 70px; flex-shrink: 0; }
+  .progress-ring svg { transform: rotate(-90deg); }
+  .progress-ring .bg { stroke: var(--surface2); }
+  .progress-ring .fg { transition: stroke-dashoffset 0.6s ease; stroke-linecap: round; }
+  .progress-ring .pct {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.95rem;
+    transform: rotate(0);
+  }
+  .progress-stats { display: flex; flex-direction: column; gap: 4px; }
+  .progress-stats .label { font-size: 0.8rem; color: var(--text-dim); }
+  .progress-stats .value { font-weight: 600; font-size: 0.95rem; }
+
+  .mini-calendar {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 4px;
+  }
+  .mini-day {
+    aspect-ratio: 1;
+    border-radius: 4px;
+    background: var(--surface2);
+    position: relative;
+  }
+  .mini-day.complete { background: var(--green); opacity: 0.8; }
+  .mini-day.partial { background: var(--amber); opacity: 0.6; }
+  .mini-day.missed { background: var(--rose); opacity: 0.4; }
+  .mini-day.future { background: var(--surface2); opacity: 0.3; }
+  .mini-day.today { box-shadow: 0 0 0 2px var(--accent); }
+
+  /* ── Tracking View ── */
+  .tracking-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .tracking-header h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .day-nav {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .day-nav button {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+  .day-nav button:hover { border-color: var(--accent); background: var(--surface2); }
+  .day-nav button:disabled { opacity: 0.3; cursor: not-allowed; }
+  .day-nav .day-label {
+    font-weight: 600;
+    min-width: 140px;
+    text-align: center;
+    font-size: 0.95rem;
+  }
+  .day-nav .day-label small { display: block; color: var(--text-dim); font-weight: 400; font-size: 0.8rem; margin-top: 2px; }
+
+  /* ── Metric Items ── */
+  .metrics-section { margin-bottom: 10px; }
+  .metrics-section-title {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+    padding-left: 4px;
+  }
+
+  .metric-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 18px;
+    background: var(--surface2);
+    border-radius: 14px;
+    margin-bottom: 10px;
+    transition: all 0.2s;
+    cursor: pointer;
+    user-select: none;
+  }
+  .metric-item:hover { background: #282838; }
+  .metric-item.checked { background: rgba(52,211,153,0.08); }
+
+  .metric-check {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.25s;
+    font-size: 0.9rem;
+  }
+  .metric-item.checked .metric-check {
+    background: var(--green);
+    border-color: var(--green);
+    box-shadow: 0 0 12px var(--green-glow);
+  }
+  .metric-icon { font-size: 1.4rem; flex-shrink: 0; }
+  .metric-info { flex: 1; }
+  .metric-name { font-weight: 600; font-size: 0.95rem; }
+  .metric-desc { font-size: 0.8rem; color: var(--text-dim); margin-top: 2px; }
+  .metric-badge {
+    font-size: 0.75rem;
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-weight: 600;
+    background: var(--surface);
+    color: var(--text-dim);
+  }
+  .metric-item.checked .metric-badge { background: rgba(52,211,153,0.15); color: var(--green); }
+
+  /* ── Leaderboard ── */
+  .leaderboard-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    background: var(--surface2);
+    border-radius: 14px;
+    margin-bottom: 8px;
+    transition: background 0.2s;
+  }
+  .leaderboard-row:hover { background: #282838; }
+  .lb-rank {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+    background: var(--surface);
+    flex-shrink: 0;
+  }
+  .lb-rank.gold { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #000; }
+  .lb-rank.silver { background: linear-gradient(135deg, #94a3b8, #64748b); color: #000; }
+  .lb-rank.bronze { background: linear-gradient(135deg, #fb923c, #ea580c); color: #000; }
+  .lb-info { flex: 1; }
+  .lb-name { font-weight: 600; font-size: 0.95rem; }
+  .lb-detail { font-size: 0.8rem; color: var(--text-dim); margin-top: 2px; }
+  .lb-bar-wrap {
+    flex: 1;
+    height: 8px;
+    background: var(--surface);
+    border-radius: 100px;
+    overflow: hidden;
+  }
+  .lb-bar {
+    height: 100%;
+    border-radius: 100px;
+    transition: width 0.6s ease;
+  }
+  .lb-pct { font-weight: 700; font-size: 0.95rem; min-width: 48px; text-align: right; }
+
+  /* ── Calendar View ── */
+  .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+  }
+  .cal-header {
+    text-align: center;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-dim);
+    padding: 8px 0;
+  }
+  .cal-day {
+    aspect-ratio: 1;
+    border-radius: 12px;
+    background: var(--surface2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    border: 1px solid transparent;
+  }
+  .cal-day:hover { border-color: var(--accent); }
+  .cal-day .cal-num { font-weight: 600; font-size: 0.95rem; }
+  .cal-day .cal-pct { font-size: 0.7rem; color: var(--text-dim); }
+  .cal-day.today { border-color: var(--accent); box-shadow: 0 0 15px var(--accent-glow); }
+  .cal-day.complete .cal-num { color: var(--green); }
+  .cal-day.empty { background: transparent; cursor: default; }
+  .cal-day.future { opacity: 0.4; }
+
+  /* ── Back button ── */
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 18px;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-dim);
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    margin-bottom: 20px;
+    transition: all 0.2s;
+  }
+  .back-btn:hover { border-color: var(--accent); color: var(--text); }
+
+  /* ── View containers ── */
+  .view { display: none; }
+  .view.active { display: block; animation: fadeIn 0.3s ease; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Overall Progress Bar ── */
+  .overall-progress {
+    margin: 0 0 30px;
+    padding: 20px 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+  }
+  .overall-progress .op-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 0.85rem;
+  }
+  .overall-progress .op-label span:first-child { color: var(--text-dim); font-weight: 500; }
+  .overall-progress .op-label span:last-child { font-weight: 700; color: var(--accent); }
+  .op-bar-wrap {
+    height: 10px;
+    background: var(--surface2);
+    border-radius: 100px;
+    overflow: hidden;
+  }
+  .op-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--pink));
+    border-radius: 100px;
+    transition: width 0.6s ease;
+  }
+
+  /* ── Motivational quotes ── */
+  .quote-banner {
+    text-align: center;
+    padding: 18px;
+    background: linear-gradient(135deg, rgba(124,92,252,0.1), rgba(244,114,182,0.08));
+    border: 1px solid rgba(124,92,252,0.2);
+    border-radius: 14px;
+    margin-bottom: 24px;
+    font-style: italic;
+    color: var(--text-dim);
+    font-size: 0.9rem;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 600px) {
+    .header h1 { font-size: 2rem; }
+    .dashboard-grid { grid-template-columns: 1fr; }
+    .card { padding: 20px; }
+    .calendar-grid { gap: 4px; }
+    .nav { gap: 6px; }
+    .nav-btn { padding: 8px 16px; font-size: 0.82rem; }
+    .metric-item { padding: 14px; gap: 10px; }
+  }
+
+  /* ── Confetti ── */
+  .confetti-container {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+  }
+  .confetti-piece {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    top: -10px;
+    animation: confettiFall 3s ease-in forwards;
+  }
+  @keyframes confettiFall {
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* ── Numeric Input ── */
+  .metric-input-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .metric-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .metric-input-wrap:focus-within { border-color: var(--accent); }
+  .metric-input-wrap input {
+    width: 80px;
+    padding: 7px 10px;
+    background: transparent;
+    border: none;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-align: center;
+    outline: none;
+    -moz-appearance: textfield;
+  }
+  .metric-input-wrap input::-webkit-outer-spin-button,
+  .metric-input-wrap input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  .metric-input-unit {
+    padding: 7px 10px 7px 0;
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .metric-input-btn {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text-dim);
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+    flex-shrink: 0;
+  }
+  .metric-input-btn:hover { background: var(--border); color: var(--text); }
+  .metric-input-btn:active { transform: scale(0.92); }
+  .metric-progress-bar {
+    flex: 1;
+    height: 6px;
+    background: var(--bg);
+    border-radius: 100px;
+    overflow: hidden;
+    min-width: 60px;
+  }
+  .metric-progress-fill {
+    height: 100%;
+    border-radius: 100px;
+    transition: width 0.4s ease, background 0.3s;
+  }
+  .metric-goal-label {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .metric-item.checked .metric-input-wrap { border-color: rgba(52,211,153,0.3); }
+  .metric-item.checked .metric-input-wrap input { color: var(--green); }
+
+  /* Weekly tag */
+  .weekly-tag {
+    display: inline-block;
+    font-size: 0.65rem;
+    padding: 2px 8px;
+    border-radius: 100px;
+    background: rgba(124,92,252,0.15);
+    color: var(--accent);
+    font-weight: 600;
+    margin-left: 6px;
+    vertical-align: middle;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- Header -->
+  <div class="header">
+    <h1>40 Medium</h1>
+    <div class="subtitle">Fitch Family Challenge</div>
+    <div class="day-counter" id="dayCounter">Day <span>1</span> of 40</div>
+  </div>
+
+  <!-- Navigation -->
+  <div class="nav" id="mainNav">
+    <button class="nav-btn active" data-view="dashboard">Dashboard</button>
+    <button class="nav-btn" data-view="leaderboard">Leaderboard</button>
+    <button class="nav-btn" data-view="calendar">Calendar</button>
+  </div>
+
+  <!-- Motivational Quote -->
+  <div class="quote-banner" id="quoteBanner"></div>
+
+  <!-- ═══════ DASHBOARD VIEW ═══════ -->
+  <div class="view active" id="view-dashboard">
+    <div class="overall-progress">
+      <div class="op-label">
+        <span>Challenge Progress</span>
+        <span id="overallPct">0%</span>
+      </div>
+      <div class="op-bar-wrap">
+        <div class="op-bar" id="overallBar" style="width:0%"></div>
+      </div>
+    </div>
+    <div class="dashboard-grid" id="dashboardGrid"></div>
+  </div>
+
+  <!-- ═══════ LEADERBOARD VIEW ═══════ -->
+  <div class="view" id="view-leaderboard">
+    <div class="card">
+      <div class="card-title"><span class="icon">&#127942;</span> Family Leaderboard</div>
+      <div id="leaderboardList"></div>
+    </div>
+  </div>
+
+  <!-- ═══════ CALENDAR VIEW ═══════ -->
+  <div class="view" id="view-calendar">
+    <div class="card">
+      <div class="card-title"><span class="icon">&#128197;</span> 40-Day Calendar</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;" id="calMemberNav"></div>
+      <div class="calendar-grid" id="calendarGrid"></div>
+      <div style="display:flex;gap:16px;justify-content:center;margin-top:16px;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:6px;font-size:0.8rem;color:var(--text-dim);">
+          <div style="width:12px;height:12px;border-radius:3px;background:var(--green);opacity:0.8;"></div> 80%+
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:0.8rem;color:var(--text-dim);">
+          <div style="width:12px;height:12px;border-radius:3px;background:var(--amber);opacity:0.7;"></div> 50-79%
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:0.8rem;color:var(--text-dim);">
+          <div style="width:12px;height:12px;border-radius:3px;background:var(--rose);opacity:0.5;"></div> &lt;50%
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:0.8rem;color:var(--text-dim);">
+          <div style="width:12px;height:12px;border-radius:3px;background:var(--surface2);opacity:0.3;"></div> No data
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ TRACKING VIEW ═══════ -->
+  <div class="view" id="view-tracking">
+    <button class="back-btn" id="backBtn">&#8592; Back to Dashboard</button>
+    <div class="tracking-header">
+      <h2 id="trackingTitle"></h2>
+      <div class="day-nav">
+        <button id="prevDay">&#8249;</button>
+        <div class="day-label" id="dayLabel"></div>
+        <button id="nextDay">&#8250;</button>
+      </div>
+    </div>
+
+    <div class="progress-ring-container" style="justify-content:center;margin-bottom:24px;">
+      <div class="progress-ring" id="trackingRing" style="width:90px;height:90px;"></div>
+      <div class="progress-stats">
+        <div class="label" id="trackingStatsLabel">Today's progress</div>
+        <div class="value" id="trackingStatsValue">0 / 11 completed</div>
+      </div>
+    </div>
+
+    <div id="metricsContainer"></div>
+  </div>
+  <!-- Loading overlay -->
+  <div id="loadingOverlay" style="position:fixed;inset:0;background:var(--bg);z-index:9998;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;">
+    <div style="width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;"></div>
+    <div style="color:var(--text-dim);font-size:0.9rem;">Syncing with family...</div>
+  </div>
+  <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
+</div>
+
+<script>
+// ─── JSONBin Config ───
+const JSONBIN_ID = '699614b7d0ea881f40c4c238';
+const JSONBIN_KEY = '$2a$10$3a6a.7MzrxJ0AniKJHMokePOfK2nYPb.M3Q9Pv8vpHv4xQtS7ry1i';
+
+// ─── Config ───
+const START_DATE = new Date(2026, 1, 18); // Feb 18, 2026
+const TOTAL_DAYS = 40;
+const MEMBERS = [
+  { id: 'chloe', name: 'Chloe', color: '#7c5cfc', initial: 'C' },
+  { id: 'char', name: 'Char', color: '#f472b6', initial: 'Ch' },
+  { id: 'lulu', name: 'Lulu', color: '#22d3ee', initial: 'L' },
+  { id: 'michael', name: 'Michael', color: '#fb923c', initial: 'M' },
+  { id: 'hope', name: 'Hope', color: '#a3e635', initial: 'H' },
+];
+
+const METRICS = [
+  { id: 'steps',    name: '10K Steps',           desc: 'Minimum 10,000 steps',          icon: '\u{1F6B6}', type: 'daily', input: { unit: 'steps', goal: 10000, placeholder: '0', step: 500 } },
+  { id: 'exercise', name: '45 Min Exercise',      desc: 'Move your body for 45+ minutes', icon: '\u{1F4AA}', type: 'daily', input: { unit: 'min', goal: 45, placeholder: '0', step: 5 } },
+  { id: 'water',    name: '120oz Water',          desc: 'Drink 120 ounces of water',      icon: '\u{1F4A7}', type: 'daily', input: { unit: 'oz', goal: 120, placeholder: '0', step: 8 } },
+  { id: 'diet',     name: 'Light Diet',           desc: 'Choose the healthier options',    icon: '\u{1F957}', type: 'daily' },
+  { id: 'sleep',    name: '7-8 Hours Sleep',      desc: 'Get quality rest',                icon: '\u{1F634}', type: 'daily', input: { unit: 'hrs', goal: 7, placeholder: '0', step: 0.5 } },
+  { id: 'read',     name: 'Read 2 Chapters',      desc: '2 chapters of a book',            icon: '\u{1F4DA}', type: 'daily', input: { unit: 'chapters', goal: 2, placeholder: '0', step: 1 } },
+  { id: 'social',   name: 'Limit Social Media',   desc: 'Reduce screen time',              icon: '\u{1F4F5}', type: 'daily', input: { unit: 'hrs', goal: null, placeholder: '0', step: 0.5, trackOnly: true } },
+  { id: 'alcohol',  name: 'No Alcohol',           desc: 'Special occasions only',          icon: '\u{1F6AB}', type: 'daily' },
+  { id: 'cheat',    name: 'No Cheat Meal Today',  desc: '1 allowed per week',              icon: '\u{1F354}', type: 'weekly', note: '1/week' },
+  { id: 'sugar',    name: 'No Sweets Today',      desc: '1 treat day per week',            icon: '\u{1F36C}', type: 'weekly', note: '1/week' },
+  { id: 'selfcare', name: 'Self Care Night',       desc: '1 per week',                      icon: '\u{1F6C1}', type: 'weekly', note: '1/week' },
+];
+
+const QUOTES = [
+  "Discipline is choosing between what you want now and what you want most.",
+  "Small daily improvements lead to staggering long-term results.",
+  "The family that grows together, glows together.",
+  "You don't have to be extreme, just consistent.",
+  "Progress, not perfection.",
+  "40 days to build habits that last a lifetime.",
+  "The only bad workout is the one that didn't happen.",
+  "Your body hears everything your mind says. Stay positive.",
+  "It's not about being the best. It's about being better than yesterday.",
+  "Motivation gets you started. Habit keeps you going.",
+  "A little progress each day adds up to big results.",
+  "Be stronger than your excuses.",
+  "The hard part isn't getting your body in shape. It's getting your mind in shape.",
+  "Success is the sum of small efforts repeated day in and day out.",
+  "Together, we're unstoppable.",
+];
+
+// ─── State ───
+let data = {};
+let currentView = 'dashboard';
+let selectedMember = null;
+let selectedDay = 0;
+let calendarMember = 'chloe';
+
+// ─── Persistence (JSONBin + localStorage cache) ───
+let saveTimeout = null;
+let syncing = false;
+
+function save() {
+  // Always save to localStorage instantly
+  localStorage.setItem('fortyMedium', JSON.stringify(data));
+  // Debounce cloud saves (wait 500ms after last change)
+  clearTimeout(saveTimeout);
+  saveTimeout = setTimeout(() => {
+    syncToCloud();
+  }, 500);
+}
+
+async function syncToCloud() {
+  if (syncing) return;
+  syncing = true;
+  try {
+    await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_ID}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Master-Key': JSONBIN_KEY,
+      },
+      body: JSON.stringify(data),
+    });
+  } catch (e) {
+    console.warn('Cloud save failed, data is safe locally:', e);
+  }
+  syncing = false;
+}
+
+async function loadFromCloud() {
+  try {
+    const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_ID}/latest`, {
+      headers: { 'X-Master-Key': JSONBIN_KEY },
+    });
+    const json = await res.json();
+    if (json.record) {
+      data = json.record;
+      MEMBERS.forEach(m => {
+        if (!data[m.id]) data[m.id] = {};
+      });
+      localStorage.setItem('fortyMedium', JSON.stringify(data));
+    }
+  } catch (e) {
+    console.warn('Cloud load failed, using local cache:', e);
+  }
+}
+
+function load() {
+  // Load from localStorage first for instant display
+  try {
+    const stored = localStorage.getItem('fortyMedium');
+    if (stored) data = JSON.parse(stored);
+  } catch (e) { data = {}; }
+  MEMBERS.forEach(m => {
+    if (!data[m.id]) data[m.id] = {};
+  });
+
+  // Then fetch latest from cloud
+  loadFromCloud().then(() => {
+    document.getElementById('loadingOverlay').style.display = 'none';
+    // Re-render current view with cloud data
+    if (currentView === 'dashboard') renderDashboard();
+    else if (currentView === 'leaderboard') renderLeaderboard();
+    else if (currentView === 'calendar') renderCalendar();
+    else if (currentView === 'tracking') renderTracking();
+  });
+
+  // Auto-refresh from cloud every 30 seconds to pick up family changes
+  setInterval(async () => {
+    await loadFromCloud();
+    if (currentView === 'dashboard') renderDashboard();
+    else if (currentView === 'leaderboard') renderLeaderboard();
+    else if (currentView === 'calendar') renderCalendar();
+    else if (currentView === 'tracking') renderTracking();
+  }, 30000);
+}
+
+// ─── Date Helpers ───
+function getDayIndex(date) {
+  const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const s = new Date(START_DATE.getFullYear(), START_DATE.getMonth(), START_DATE.getDate());
+  return Math.floor((d - s) / 86400000);
+}
+function getDateForDay(dayIdx) {
+  const d = new Date(START_DATE);
+  d.setDate(d.getDate() + dayIdx);
+  return d;
+}
+function formatDate(d) {
+  return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+}
+function getCurrentDayIndex() {
+  return getDayIndex(new Date());
+}
+function getWeekNumber(dayIdx) {
+  return Math.floor(dayIdx / 7);
+}
+
+// ─── Data Helpers ───
+function getDayData(memberId, dayIdx) {
+  return (data[memberId] && data[memberId][dayIdx]) || {};
+}
+function setMetric(memberId, dayIdx, metricId, value) {
+  if (!data[memberId]) data[memberId] = {};
+  if (!data[memberId][dayIdx]) data[memberId][dayIdx] = {};
+  data[memberId][dayIdx][metricId] = value;
+  save();
+}
+function getDayCompletionCount(memberId, dayIdx) {
+  const dayData = getDayData(memberId, dayIdx);
+  return METRICS.filter(m => dayData[m.id]).length;
+}
+function getDayCompletionPct(memberId, dayIdx) {
+  return Math.round((getDayCompletionCount(memberId, dayIdx) / METRICS.length) * 100);
+}
+function getOverallPct(memberId) {
+  const currentDay = Math.min(getCurrentDayIndex(), TOTAL_DAYS - 1);
+  if (currentDay < 0) return 0;
+  let total = 0, done = 0;
+  for (let i = 0; i <= currentDay; i++) {
+    total += METRICS.length;
+    done += getDayCompletionCount(memberId, i);
+  }
+  return total > 0 ? Math.round((done / total) * 100) : 0;
+}
+function getCurrentStreak(memberId) {
+  const today = Math.min(getCurrentDayIndex(), TOTAL_DAYS - 1);
+  let streak = 0;
+  for (let i = today; i >= 0; i--) {
+    if (getDayCompletionPct(memberId, i) >= 80) streak++;
+    else break;
+  }
+  return streak;
+}
+function getWeeklyUsage(memberId, dayIdx, metricId) {
+  const week = getWeekNumber(dayIdx);
+  let count = 0;
+  for (let d = week * 7; d < (week + 1) * 7 && d < TOTAL_DAYS; d++) {
+    const dd = getDayData(memberId, d);
+    // For weekly metrics, a checked state means they DID NOT indulge (it's a "good" check)
+    // An unchecked state means they used their weekly allowance that day
+    if (!dd[metricId]) count++; // count days they indulged
+  }
+  return count;
+}
+
+// ─── UI: Update Day Counter ───
+function updateDayCounter() {
+  const idx = getCurrentDayIndex();
+  const el = document.getElementById('dayCounter');
+  if (idx < 0) {
+    el.innerHTML = 'Starts <span>' + formatDate(START_DATE) + '</span>';
+  } else if (idx >= TOTAL_DAYS) {
+    el.innerHTML = '<span>Challenge Complete! &#127881;</span>';
+  } else {
+    el.innerHTML = 'Day <span>' + (idx + 1) + '</span> of 40';
+  }
+}
+
+// ─── UI: Quote ───
+function showQuote() {
+  const dayIdx = Math.max(0, getCurrentDayIndex());
+  document.getElementById('quoteBanner').textContent = '"' + QUOTES[dayIdx % QUOTES.length] + '"';
+}
+
+// ─── UI: Navigation ───
+document.querySelectorAll('.nav-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    showView(btn.dataset.view);
+  });
+});
+function showView(view) {
+  currentView = view;
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + view).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.view === view));
+  document.getElementById('mainNav').style.display = view === 'tracking' ? 'none' : 'flex';
+  if (view === 'dashboard') renderDashboard();
+  if (view === 'leaderboard') renderLeaderboard();
+  if (view === 'calendar') renderCalendar();
+  if (view === 'tracking') renderTracking();
+}
+
+// ─── UI: Dashboard ───
+function renderDashboard() {
+  const grid = document.getElementById('dashboardGrid');
+  grid.innerHTML = '';
+  const today = getCurrentDayIndex();
+
+  // Overall progress
+  const allPcts = MEMBERS.map(m => getOverallPct(m.id));
+  const avgPct = Math.round(allPcts.reduce((a,b)=>a+b,0) / allPcts.length);
+  document.getElementById('overallPct').textContent = avgPct + '%';
+  document.getElementById('overallBar').style.width = avgPct + '%';
+
+  MEMBERS.forEach(member => {
+    const todayPct = today >= 0 && today < TOTAL_DAYS ? getDayCompletionPct(member.id, today) : 0;
+    const todayDone = today >= 0 && today < TOTAL_DAYS ? getDayCompletionCount(member.id, today) : 0;
+    const streak = getCurrentStreak(member.id);
+    const overallPct = getOverallPct(member.id);
+
+    const card = document.createElement('div');
+    card.className = 'member-card';
+    card.style.setProperty('--member-color', member.color);
+    card.onclick = () => openTracking(member.id);
+
+    const circumference = 2 * Math.PI * 28;
+    const offset = circumference - (todayPct / 100) * circumference;
+
+    card.innerHTML = `
+      <div class="member-header">
+        <div class="avatar" style="background:${member.color}">${member.initial}</div>
+        <div>
+          <div class="member-name">${member.name}</div>
+          <div class="member-streak">${streak > 0 ? '\u{1F525} ' + streak + ' day streak' : 'Start your streak!'}</div>
+        </div>
+      </div>
+      <div class="progress-ring-container">
+        <div class="progress-ring">
+          <svg width="70" height="70" viewBox="0 0 70 70">
+            <circle class="bg" cx="35" cy="35" r="28" fill="none" stroke-width="6"/>
+            <circle class="fg" cx="35" cy="35" r="28" fill="none" stroke="${member.color}" stroke-width="6"
+              stroke-dasharray="${circumference}" stroke-dashoffset="${offset}"/>
+          </svg>
+          <div class="pct">${todayPct}%</div>
+        </div>
+        <div class="progress-stats">
+          <div class="label">Today</div>
+          <div class="value">${todayDone} / ${METRICS.length} done</div>
+          <div class="label" style="margin-top:4px">Overall: ${overallPct}%</div>
+        </div>
+      </div>
+      <div class="mini-calendar" id="mini-${member.id}"></div>
+    `;
+    grid.appendChild(card);
+
+    // Mini calendar
+    const miniCal = card.querySelector('.mini-calendar');
+    for (let i = 0; i < TOTAL_DAYS; i++) {
+      const day = document.createElement('div');
+      day.className = 'mini-day';
+      if (i === today) day.classList.add('today');
+      if (i > today) {
+        day.classList.add('future');
+      } else {
+        const pct = getDayCompletionPct(member.id, i);
+        if (pct >= 80) day.classList.add('complete');
+        else if (pct >= 50) day.classList.add('partial');
+        else if (pct > 0) day.classList.add('missed');
+      }
+      miniCal.appendChild(day);
+    }
+  });
+}
+
+// ─── UI: Leaderboard ───
+function renderLeaderboard() {
+  const list = document.getElementById('leaderboardList');
+  list.innerHTML = '';
+  const sorted = MEMBERS.map(m => ({
+    ...m,
+    pct: getOverallPct(m.id),
+    streak: getCurrentStreak(m.id),
+  })).sort((a, b) => b.pct - a.pct || b.streak - a.streak);
+
+  sorted.forEach((member, i) => {
+    const row = document.createElement('div');
+    row.className = 'leaderboard-row';
+    const rankClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
+    row.innerHTML = `
+      <div class="lb-rank ${rankClass}">${i + 1}</div>
+      <div class="avatar" style="background:${member.color};width:36px;height:36px;font-size:0.85rem;">${member.initial}</div>
+      <div class="lb-info">
+        <div class="lb-name">${member.name}</div>
+        <div class="lb-detail">${member.streak > 0 ? '\u{1F525} ' + member.streak + ' day streak' : 'No streak yet'}</div>
+      </div>
+      <div class="lb-bar-wrap">
+        <div class="lb-bar" style="width:${member.pct}%;background:${member.color}"></div>
+      </div>
+      <div class="lb-pct" style="color:${member.color}">${member.pct}%</div>
+    `;
+    list.appendChild(row);
+  });
+}
+
+// ─── UI: Calendar ───
+function renderCalendar() {
+  // Member tabs
+  const nav = document.getElementById('calMemberNav');
+  nav.innerHTML = '';
+  MEMBERS.forEach(m => {
+    const btn = document.createElement('button');
+    btn.className = 'nav-btn' + (calendarMember === m.id ? ' active' : '');
+    btn.textContent = m.name;
+    btn.style.cssText = calendarMember === m.id ? `background:${m.color};border-color:${m.color};color:#000;font-weight:600;` : '';
+    btn.onclick = () => { calendarMember = m.id; renderCalendar(); };
+    nav.appendChild(btn);
+  });
+
+  const grid = document.getElementById('calendarGrid');
+  grid.innerHTML = '';
+  const today = getCurrentDayIndex();
+  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  dayNames.forEach(d => {
+    const h = document.createElement('div');
+    h.className = 'cal-header';
+    h.textContent = d;
+    grid.appendChild(h);
+  });
+
+  // Fill blank days before start
+  const startDow = START_DATE.getDay();
+  for (let i = 0; i < startDow; i++) {
+    const blank = document.createElement('div');
+    blank.className = 'cal-day empty';
+    grid.appendChild(blank);
+  }
+
+  for (let i = 0; i < TOTAL_DAYS; i++) {
+    const d = getDateForDay(i);
+    const pct = getDayCompletionPct(calendarMember, i);
+    const cell = document.createElement('div');
+    cell.className = 'cal-day';
+    if (i === today) cell.classList.add('today');
+    if (i > today) cell.classList.add('future');
+    if (pct >= 80) cell.classList.add('complete');
+
+    if (i <= today && pct >= 80) cell.style.background = 'rgba(52,211,153,0.15)';
+    else if (i <= today && pct >= 50) cell.style.background = 'rgba(251,191,36,0.12)';
+    else if (i <= today && pct > 0) cell.style.background = 'rgba(251,113,133,0.1)';
+
+    cell.innerHTML = `
+      <div class="cal-num">Day ${i + 1}</div>
+      <div class="cal-pct">${i <= today ? pct + '%' : ''}</div>
+    `;
+    cell.onclick = () => { openTracking(calendarMember, i); };
+    grid.appendChild(cell);
+  }
+}
+
+// ─── UI: Tracking ───
+function openTracking(memberId, dayIdx) {
+  selectedMember = memberId;
+  selectedDay = dayIdx !== undefined ? dayIdx : Math.max(0, Math.min(getCurrentDayIndex(), TOTAL_DAYS - 1));
+  showView('tracking');
+}
+
+document.getElementById('backBtn').addEventListener('click', () => showView('dashboard'));
+document.getElementById('prevDay').addEventListener('click', () => {
+  if (selectedDay > 0) { selectedDay--; renderTracking(); }
+});
+document.getElementById('nextDay').addEventListener('click', () => {
+  const maxDay = Math.min(getCurrentDayIndex(), TOTAL_DAYS - 1);
+  if (selectedDay < maxDay) { selectedDay++; renderTracking(); }
+});
+
+function renderTracking() {
+  const member = MEMBERS.find(m => m.id === selectedMember);
+  if (!member) return;
+  const maxDay = Math.min(getCurrentDayIndex(), TOTAL_DAYS - 1);
+
+  document.getElementById('prevDay').disabled = selectedDay <= 0;
+  document.getElementById('nextDay').disabled = selectedDay >= maxDay;
+
+  const date = getDateForDay(selectedDay);
+  document.getElementById('trackingTitle').innerHTML =
+    `<div class="avatar" style="background:${member.color};width:38px;height:38px;font-size:0.9rem;">${member.initial}</div>` +
+    member.name;
+  document.getElementById('dayLabel').innerHTML =
+    `Day ${selectedDay + 1}<small>${formatDate(date)}</small>`;
+
+  const dayData = getDayData(member.id, selectedDay);
+  const done = METRICS.filter(m => dayData[m.id]).length;
+  const pct = Math.round((done / METRICS.length) * 100);
+
+  // Ring
+  const circumference = 2 * Math.PI * 36;
+  const offset = circumference - (pct / 100) * circumference;
+  const ringColor = pct >= 80 ? 'var(--green)' : pct >= 50 ? 'var(--amber)' : pct > 0 ? 'var(--rose)' : member.color;
+  document.getElementById('trackingRing').innerHTML = `
+    <svg width="90" height="90" viewBox="0 0 90 90">
+      <circle class="bg" cx="45" cy="45" r="36" fill="none" stroke-width="7"/>
+      <circle class="fg" cx="45" cy="45" r="36" fill="none" stroke="${ringColor}" stroke-width="7"
+        stroke-dasharray="${circumference}" stroke-dashoffset="${offset}"/>
+    </svg>
+    <div class="pct">${pct}%</div>
+  `;
+  document.getElementById('trackingStatsValue').textContent = done + ' / ' + METRICS.length + ' completed';
+
+  // Metrics
+  const container = document.getElementById('metricsContainer');
+  container.innerHTML = '';
+
+  const dailyMetrics = METRICS.filter(m => m.type === 'daily');
+  const weeklyMetrics = METRICS.filter(m => m.type === 'weekly');
+
+  // Daily section
+  const dailySection = document.createElement('div');
+  dailySection.className = 'metrics-section';
+  dailySection.innerHTML = '<div class="metrics-section-title">Daily Habits</div>';
+  dailyMetrics.forEach(metric => {
+    dailySection.appendChild(createMetricItem(metric, member, dayData));
+  });
+  container.appendChild(dailySection);
+
+  // Weekly section
+  const weeklySection = document.createElement('div');
+  weeklySection.className = 'metrics-section';
+  weeklySection.innerHTML = '<div class="metrics-section-title">Weekly Limits</div>';
+  weeklyMetrics.forEach(metric => {
+    weeklySection.appendChild(createMetricItem(metric, member, dayData));
+  });
+  container.appendChild(weeklySection);
+}
+
+function createMetricItem(metric, member, dayData) {
+  const checked = !!dayData[metric.id];
+  const numericVal = dayData[metric.id + '_val'] || 0;
+  const hasInput = !!metric.input;
+  const item = document.createElement('div');
+  item.className = 'metric-item' + (checked ? ' checked' : '');
+
+  let badgeHTML = '';
+  if (metric.type === 'weekly') {
+    badgeHTML = `<span class="weekly-tag">weekly</span>`;
+  }
+
+  let inputHTML = '';
+  if (hasInput) {
+    const inp = metric.input;
+    const goalPct = inp.goal ? Math.min(100, Math.round((numericVal / inp.goal) * 100)) : 0;
+    const barColor = checked ? 'var(--green)' : goalPct >= 70 ? 'var(--amber)' : 'var(--accent)';
+    const goalLabel = inp.goal
+      ? `${numericVal.toLocaleString()} / ${inp.goal.toLocaleString()} ${inp.unit}`
+      : `${numericVal} ${inp.unit} logged`;
+
+    inputHTML = `
+      <div class="metric-input-row">
+        <button class="metric-input-btn" data-action="dec" data-metric="${metric.id}">-</button>
+        <div class="metric-input-wrap">
+          <input type="number" value="${numericVal || ''}" placeholder="${inp.placeholder}"
+            data-metric="${metric.id}" step="${inp.step}" min="0">
+          <span class="metric-input-unit">${inp.unit}</span>
+        </div>
+        <button class="metric-input-btn" data-action="inc" data-metric="${metric.id}">+</button>
+        ${inp.goal ? `
+          <div class="metric-progress-bar">
+            <div class="metric-progress-fill" style="width:${goalPct}%;background:${barColor}"></div>
+          </div>
+        ` : ''}
+        <span class="metric-goal-label">${goalLabel}</span>
+      </div>
+    `;
+  }
+
+  // For metrics with input, the badge shows the value when checked
+  let badgeText = checked ? 'Done' : 'To Do';
+  if (hasInput && checked && numericVal > 0) {
+    badgeText = numericVal.toLocaleString() + ' ' + metric.input.unit;
+  }
+
+  item.innerHTML = `
+    <div class="metric-check">${checked ? '&#10003;' : ''}</div>
+    <div class="metric-icon">${metric.icon}</div>
+    <div class="metric-info">
+      <div class="metric-name">${metric.name}${badgeHTML}</div>
+      <div class="metric-desc">${metric.desc}</div>
+      ${inputHTML}
+    </div>
+    <div class="metric-badge">${badgeText}</div>
+  `;
+
+  // Toggle check on click (but not when interacting with input)
+  const checkEl = item.querySelector('.metric-check');
+  const iconEl = item.querySelector('.metric-icon');
+  const nameEl = item.querySelector('.metric-name');
+  const descEl = item.querySelector('.metric-desc');
+  const badgeEl = item.querySelector('.metric-badge');
+
+  const toggleCheck = () => {
+    const newVal = !dayData[metric.id];
+    setMetric(member.id, selectedDay, metric.id, newVal);
+    dayData[metric.id] = newVal;
+    renderTracking();
+    const done = METRICS.filter(m => dayData[m.id]).length;
+    if (done === METRICS.length) launchConfetti(member.color);
+  };
+
+  // For non-input metrics, whole row is clickable
+  if (!hasInput) {
+    item.addEventListener('click', toggleCheck);
+  } else {
+    // For input metrics, only the check circle, icon, name, desc, and badge are clickable toggles
+    [checkEl, iconEl, badgeEl].forEach(el => {
+      if (el) { el.style.cursor = 'pointer'; el.addEventListener('click', (e) => { e.stopPropagation(); toggleCheck(); }); }
+    });
+    // Also make the name and desc clickable but not the input row
+    nameEl.style.cursor = 'pointer';
+    nameEl.addEventListener('click', (e) => { e.stopPropagation(); toggleCheck(); });
+    descEl.style.cursor = 'pointer';
+    descEl.addEventListener('click', (e) => { e.stopPropagation(); toggleCheck(); });
+    item.style.cursor = 'default';
+
+    // Input handling
+    const inputEl = item.querySelector('input[type="number"]');
+    const decBtn = item.querySelector('[data-action="dec"]');
+    const incBtn = item.querySelector('[data-action="inc"]');
+
+    const updateValue = (newVal) => {
+      const val = Math.max(0, newVal);
+      setMetric(member.id, selectedDay, metric.id + '_val', val);
+      dayData[metric.id + '_val'] = val;
+      // Auto-check if goal is met (for metrics with a goal)
+      if (metric.input.goal && val >= metric.input.goal && !dayData[metric.id]) {
+        setMetric(member.id, selectedDay, metric.id, true);
+        dayData[metric.id] = true;
+      }
+      // Auto-uncheck if value drops below goal (only if it was auto-checked)
+      if (metric.input.goal && val < metric.input.goal && dayData[metric.id]) {
+        setMetric(member.id, selectedDay, metric.id, false);
+        dayData[metric.id] = false;
+      }
+      renderTracking();
+      const done = METRICS.filter(m => dayData[m.id]).length;
+      if (done === METRICS.length) launchConfetti(member.color);
+    };
+
+    inputEl.addEventListener('input', (e) => {
+      e.stopPropagation();
+      const val = parseFloat(e.target.value) || 0;
+      updateValue(val);
+    });
+    inputEl.addEventListener('click', (e) => e.stopPropagation());
+
+    decBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const current = dayData[metric.id + '_val'] || 0;
+      updateValue(current - metric.input.step);
+    });
+    incBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const current = dayData[metric.id + '_val'] || 0;
+      updateValue(current + metric.input.step);
+    });
+  }
+
+  return item;
+}
+
+// ─── Confetti ───
+function launchConfetti(color) {
+  const container = document.createElement('div');
+  container.className = 'confetti-container';
+  document.body.appendChild(container);
+  const colors = [color, '#fbbf24', '#34d399', '#fb7185', '#60a5fa', '#f472b6', '#7c5cfc'];
+  for (let i = 0; i < 60; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left = Math.random() * 100 + '%';
+    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.animationDelay = Math.random() * 1.5 + 's';
+    piece.style.animationDuration = (2 + Math.random() * 2) + 's';
+    piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    piece.style.width = (6 + Math.random() * 8) + 'px';
+    piece.style.height = (6 + Math.random() * 8) + 'px';
+    container.appendChild(piece);
+  }
+  setTimeout(() => container.remove(), 4000);
+}
+
+// ─── Init ───
+load();
+updateDayCounter();
+showQuote();
+renderDashboard();
+
+// Failsafe: hide loading overlay after 3s even if Firebase is slow
+setTimeout(() => {
+  document.getElementById('loadingOverlay').style.display = 'none';
+}, 3000);
+</script>
+</body>
+</html>
